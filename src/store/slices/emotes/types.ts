@@ -1,3 +1,5 @@
+import { Emote } from "@frontend/types/util";
+
 export interface Emoji {
   category: number;
   sort: number;
@@ -8,13 +10,37 @@ export interface Emoji {
 }
 
 export interface AllEmotes {
-  twitch?: Emotes<TwitchEmote>;
+  twitch?: Emote<TwitchEmote>;
   twitchTemplate?: string;
-  bttvGlobal?: Emotes<BttvEmote>;
-  bttvChannel?: Emotes<BttvEmote>;
-  ffzGlobal?: Emotes<FfzEmote>;
-  ffzChannel?: Emotes<FfzEmote>;
-  stvGlobal?: Emotes<StvEmote>;
-  stvChannel?: Emotes<StvEmote>;
-  emoji?: Emotes<Emoji>;
+  bttvGlobal?: Emote<BttvEmote>;
+  bttvChannel?: Emote<BttvEmote>;
+  ffzGlobal?: Emote<FfzEmote>;
+  ffzChannel?: Emote<FfzEmote>;
+  stvGlobal?: Emote<StvEmote>;
+  stvChannel?: Emote<StvEmote>;
+  emoji?: Emote<Emoji>;
 }
+
+export interface HtmlEmote {
+  id: string;
+  title: string;
+  alt: string;
+  src: string;
+  srcSet: string;
+  sources: [mime: `image/${string}`, srcSet: string][];
+  owner: {
+    id?: string;
+    name?: string;
+    displayName?: string;
+  };
+}
+
+type LocalStorageEmoteUsageItem = [uses: number, updatedAt: number];
+
+/**
+ * `{ [EmoteType]: { [emoteId]: [uses, updatedAt] } }`
+ */
+export type LocalStorageEmoteUsageStatistic = Record<
+  EmoteType,
+  Record<string, LocalStorageEmoteUsageItem>
+>;
