@@ -1,4 +1,9 @@
+import { BttvEmote } from "@frontend/types/bttv/emote";
+import { FfzEmote } from "@frontend/types/ffz/emote";
+import { StvEmote } from "@frontend/types/stv";
+import { TwitchEmote } from "@frontend/types/twitch/emote";
 import { Emote } from "@frontend/types/util";
+import { EmoteType } from "./constants";
 
 export interface Emoji {
   category: number;

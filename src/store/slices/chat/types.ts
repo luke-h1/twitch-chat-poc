@@ -1,9 +1,15 @@
 import { EntityState } from "@reduxjs/toolkit";
 import { Options } from "../options";
-import { StvEmote } from "@frontend/types/stv";
+import { StvBadge, StvEmote } from "@frontend/types/stv";
 import { TwitchBadges } from "@frontend/types/twitch/badge";
 import { Badge, Emote } from "@frontend/types/util";
 import { TwitchEmote } from "@frontend/types/twitch/emote";
+import { BttvEmote } from "@frontend/types/bttv/emote";
+import { BttvBadge } from "@frontend/types/bttv/badge";
+import { FfzEmote } from "@frontend/types/ffz/emote";
+import { FfzApBadge, FfzBadge } from "@frontend/types/ffz/badge";
+import { ChatterinoBadge } from "@frontend/types/chatterino/badge";
+import { Emoji, HtmlEmote } from "../emotes/types";
 
 type TStatus = "idle" | "pending" | "fulfilled" | "rejected";
 type AuthStatus = "uninitialized" | "success" | "error";
