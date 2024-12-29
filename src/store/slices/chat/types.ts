@@ -1,10 +1,9 @@
-import {
-  createEntityAdapter,
-  createSlice,
-  EntityState,
-  PayloadAction,
-} from "@reduxjs/toolkit";
+import { EntityState } from "@reduxjs/toolkit";
 import { Options } from "../options";
+import { StvEmote } from "@frontend/types/stv";
+import { TwitchBadges } from "@frontend/types/twitch/badge";
+import { Badge, Emote } from "@frontend/types/util";
+import { TwitchEmote } from "@frontend/types/twitch/emote";
 
 type TStatus = "idle" | "pending" | "fulfilled" | "rejected";
 type AuthStatus = "uninitialized" | "success" | "error";
@@ -79,9 +78,9 @@ export interface Channel {
    * First party emotes in the channel
    */
   emotes: {
-    bttv: FetchResult<Emotes<BttvEmote>>;
-    ffz: FetchResult<Emotes<FfzEmote>>;
-    stv: FetchResult<Emotes<StvEmote>>;
+    bttv: FetchResult<Emote<BttvEmote>>;
+    ffz: FetchResult<Emote<FfzEmote>>;
+    stv: FetchResult<Emote<StvEmote>>;
   };
 
   /**
@@ -114,28 +113,28 @@ export interface ChatState {
   // Emotes
   emotes: {
     twitch: FetchResult<
-      Emotes<TwitchEmote>,
+      Emote<TwitchEmote>,
       { setIds?: string[]; template?: string }
     >;
-    bttv: FetchResult<Emotes<BttvEmote>>;
-    ffz: FetchResult<Emotes<FfzEmote>>;
-    stv: FetchResult<Emotes<StvEmote>>;
-    emoji: FetchResult<Emotes<Emoji>>;
+    bttv: FetchResult<Emote<BttvEmote>>;
+    ffz: FetchResult<Emote<FfzEmote>>;
+    stv: FetchResult<Emote<StvEmote>>;
+    emoji: FetchResult<Emote<Emoji>>;
   };
 
   // Badges
   badges: {
-    twitch: FetchResult<Badges<TwitchBadge>>;
-    bttv: FetchResult<Badges<BttvBadge>>;
-    ffz: FetchResult<Badges<FfzBadge>>;
+    twitch: FetchResult<Badge<TwitchBadges>>;
+    bttv: FetchResult<Badge<BttvBadge>>;
+    ffz: FetchResult<Badge<FfzBadge>>;
 
     // todo doc this
-    ffzAp: FetchResult<Badges<FfzApBadge>>;
+    ffzAp: FetchResult<Badge<FfzApBadge>>;
 
-    stv: FetchResult<Badges<StvBadge>>;
+    stv: FetchResult<Badge<StvBadge>>;
 
     // chatterino - todo look into this
-    chatterino: FetchResult<Badges<ChatterinoBadge>>;
+    chatterino: FetchResult<Badge<ChatterinoBadge>>;
   };
 
   options: Options;

@@ -5,3 +5,8 @@ export type TwitchBadgesResponse =
 
 export type TwitchBadgeVersion =
   components["schemas"]["ChatBadge"]["versions"][number];
+
+/**
+ * @example twitchBadges[setId][versionId]
+ */
+export type TwitchBadges = Record<string, Record<string, TwitchBadgeVersion>>;
