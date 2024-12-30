@@ -54,3 +54,10 @@ export type DeepRequired<Type> = Type extends Error
 export type OmitStrict<T, K extends keyof T> = T extends any
   ? Pick<T, Exclude<keyof T, K>>
   : never;
+
+/**
+ * Make all properties of a given type in T optional, recursively
+ */
+export type DeepPartial<T> = T extends object
+  ? { [P in keyof T]?: DeepPartial<T[P]> }
+  : T;

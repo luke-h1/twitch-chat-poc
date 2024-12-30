@@ -1,14 +1,14 @@
-import { MessagePart } from "@frontend/types/messages";
+import { MessagePartType } from "@frontend/types/messages";
 
 export const FREQUENTLY_USED_EMOTES_LIMIT = 36;
 
 // TODO: convert to string literal
 export enum EmoteType {
-  Twitch = MessagePart.TWITCH_EMOTE,
-  Bttv = MessagePart.BTTV_EMOTE,
-  Ffz = MessagePart.FFZ_EMOTE,
-  Stv = MessagePart.STV_EMOTE,
-  Emoji = MessagePart.EMOJI,
+  Twitch = MessagePartType.TWITCH_EMOTE,
+  Bttv = MessagePartType.BTTV_EMOTE,
+  Ffz = MessagePartType.FFZ_EMOTE,
+  Stv = MessagePartType.STV_EMOTE,
+  Emoji = MessagePartType.EMOJI,
 }
 
 // https://github.com/FrankerFaceZ/Add-Ons/blob/master/src/ffzap-bttv/index.js#L218

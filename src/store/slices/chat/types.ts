@@ -1,5 +1,5 @@
-import { EntityState } from "@reduxjs/toolkit";
-import { Options } from "../options";
+import { EntityId, EntityState } from "@reduxjs/toolkit";
+import { Options } from "../../options/types";
 import { StvBadge, StvEmote } from "@frontend/types/stv";
 import { TwitchBadges } from "@frontend/types/twitch/badge";
 import { Badge, Emote } from "@frontend/types/util";
@@ -10,6 +10,7 @@ import { FfzEmote } from "@frontend/types/ffz/emote";
 import { FfzApBadge, FfzBadge } from "@frontend/types/ffz/badge";
 import { ChatterinoBadge } from "@frontend/types/chatterino/badge";
 import { Emoji, HtmlEmote } from "../emotes/types";
+import { Messages } from "@frontend/types/messages";
 
 type TStatus = "idle" | "pending" | "fulfilled" | "rejected";
 type AuthStatus = "uninitialized" | "success" | "error";
@@ -99,13 +100,13 @@ export interface Channel {
 }
 
 interface Me {
-  authStatus: AuthStatus;
+  authStatus?: AuthStatus;
   id?: string;
   login?: string;
   displayName?: string;
   picture?: string;
   accessToken?: string;
-  globalUserState: GlobalUserStateTags;
+  globalUserState?: GlobalUserStateTags;
   blockedUsers: FetchResult<string[]>;
 }
 
@@ -113,7 +114,7 @@ export interface ChatState {
   isConnected: boolean;
   isRegistered: boolean;
   me: Me;
-  channels: EntityState<Channel>;
+  channels: EntityState<Channel, EntityId>;
   currentChannel?: string;
 
   // Emotes
@@ -166,3 +167,5 @@ type EmoteSuggestions = ASuggestions & {
 export type SuggestionState = UserSuggestions | EmoteSuggestions;
 
 export type SendMessageFn = (channel: string, message: string) => void;
+
+export type LocalStorageChannels = [name: string, id?: string][];
