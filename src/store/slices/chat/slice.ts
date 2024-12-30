@@ -3,11 +3,35 @@ import {
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
-import { Channel, ChatState, LocalStorageChannels } from "./types";
+import {
+  Channel,
+  ChatState,
+  GlobalUserStateTags,
+  LocalStorageChannels,
+  RoomStateTags,
+  UserStateTags,
+} from "./types";
 import { EntityState } from "@reduxjs/toolkit";
 import getInitialOptions from "@frontend/store/options/getInitialOptions";
-import { CHANNEL_INITIAL_STATE } from "./config";
+import {
+  CHANNEL_INITIAL_STATE,
+  CHANNEL_RECENT_INPUTS_LIMIT,
+  CHANNEL_USERS_LIMIT,
+} from "./config";
 import { RootState } from "@frontend/store";
+import {
+  createCreateBadges,
+  createCreateCard,
+  createCreateParts,
+} from "@frontend/util/createMessages";
+import {
+  MessageType,
+  MessageTypeNotice,
+  MessageTypePrivate,
+  MessageTypeUserNotice,
+} from "@frontend/types/messages";
+import storageService from "@frontend/services/localStorageService";
+import { Options } from "@frontend/store/options/types";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
@@ -142,7 +166,237 @@ const chat = createSlice({
       // parse parts, badges, cards for all messages
       const dummyState = { chat: state } as RootState;
 
-      const createBadges = createCreate;
+      const createBadges = createCreateBadges(dummyState);
+      const createParts = createCreateParts(dummyState);
+      const createCard = createCreateCard(dummyState);
+
+      const blockedUsers = state.me.blockedUsers.data;
+
+      const filteredMessages = channel.messages.filter(
+        (m) =>
+          !(
+            m.type === MessageType.PRIVATE_MESSAGE &&
+            blockedUsers?.includes(m.user.login)
+          )
+      );
+      if (channel.messages.length % 2 !== filteredMessages.length % 2) {
+        channel.isFirstMessageAltBg = !channel.isFirstMessageAltBg;
+      }
+
+      if (channel.messages.length !== filteredMessages.length) {
+        channel.messages = filteredMessages;
+      }
+
+      for (const message of channel.messages) {
+        if (
+          message.type !== MessageType.PRIVATE_MESSAGE &&
+          message.type !== MessageType.USER_NOTICE
+        ) {
+          continue;
+        }
+
+        message.parts = createParts(message.body, message._tags.emotes);
+        message.badges = createBadges(message.user.id, message._tags.badges);
+
+        if (message.type === MessageType.PRIVATE_MESSAGE) {
+          message.card = createCard(message.parts);
+        }
+      }
+    },
+
+    // chat state
+    globalUserStateReceived: (
+      state,
+      { payload }: PayloadAction<GlobalUserStateTags>
+    ) => {
+      state.me.globalUserState = payload;
+    },
+    userStateReceived: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{ channelName: string; userState: UserStateTags }>
+    ) => {
+      const channel = state.channels.entities[payload.channelName];
+      if (!channel) {
+        return;
+      }
+      channel.userState = payload.userState;
+    },
+    roomStateReceived: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{ channelName: string; roomState: RoomStateTags }>
+    ) => {
+      const channel = state.channels.entities[payload.channelName];
+      if (!channel) {
+        return;
+      }
+
+      channel.roomState = payload.roomState;
+      channel.id = payload.roomState.roomId;
+    },
+
+    // chat messages
+    messageReceived: (
+      state,
+      {
+        payload,
+      }: PayloadAction<
+        MessageTypePrivate | MessageTypeUserNotice | MessageTypeNotice
+      >
+    ) => {
+      const channel = state.channels.entities[payload.channelName];
+
+      if (!channel) {
+        return;
+      }
+
+      channel.messages.push(payload);
+
+      const { messagesLimit } = state.options.ui;
+
+      if (channel.messages.length > messagesLimit) {
+        channel.isFirstMessageAltBg = !channel.isFirstMessageAltBg;
+        channel.messages.shift();
+      }
+
+      // users
+      if (
+        payload.type === MessageType.PRIVATE_MESSAGE &&
+        !channel.users.includes(payload.user.login)
+      ) {
+        channel.users.push(payload.user.login);
+
+        if (channel.users.length > CHANNEL_USERS_LIMIT) {
+          channel.users.shift();
+        }
+      }
+
+      // recentInputs
+      if (payload.type === MessageType.PRIVATE_MESSAGE && payload.isSelf) {
+        // prevent adding the same message
+        if (
+          channel.recentInputs[channel.recentInputs.length - 1] !== payload.body
+        ) {
+          channel.recentInputs.push(payload.body);
+          if (channel.recentInputs.length > CHANNEL_RECENT_INPUTS_LIMIT) {
+            channel.recentInputs.shift();
+          }
+        }
+      }
+    },
+
+    clearChatReceived: (
+      state,
+      { payload }: PayloadAction<{ channelName: string; login?: string }>
+    ) => {
+      const channel = state.channels.entities[payload.channelName];
+
+      if (!channel) {
+        return;
+      }
+
+      if (payload.login) {
+        // /ban or /timeout is used
+        for (const message of channel.messages) {
+          if (
+            message.type === MessageType.PRIVATE_MESSAGE &&
+            message.user.login === payload.login
+          ) {
+            message.isDeleted = true;
+          }
+        }
+      } else {
+        // /clear
+        for (const message of channel.messages) {
+          if (message.type === MessageType.PRIVATE_MESSAGE) {
+            message.isHistory = true;
+          }
+        }
+      }
+    },
+    clearMsgReceived: (
+      state,
+      { payload }: PayloadAction<{ channelName: string; messageId: string }>
+    ) => {
+      const channel = state.channels.entities[payload.channelName];
+      if (!channel) {
+        return;
+      }
+
+      const message = channel.messages.find(
+        (m) =>
+          m.type === MessageType.PRIVATE_MESSAGE && m.id === payload.messageId
+      );
+
+      if (message) {
+        (message as MessageTypePrivate).isDeleted = true;
+      }
+    },
+
+    // options
+    optionChanged: {
+      reducer: (
+        state,
+        {
+          payload: { section, name, value },
+        }: PayloadAction<OptionChangedPayload>
+      ) => {
+        if (section === "ui" && name === "messagesLimit") {
+          for (const channel of Object.values(state.channels.entities)) {
+            if (!channel) continue;
+            const exceededMessages = channel.messages.length - value;
+            if (exceededMessages > 0) {
+              channel.messages = channel.messages.slice(exceededMessages);
+            }
+          }
+        }
+      },
+      prepare: (payload: OptionChangedPayload) => {
+        if (payload.section === "ui" && payload.name === "messagesLimit") {
+          payload.value = Number.parseInt(payload.value, 10);
+        }
+
+        const options = storageService.getSync<Options>("options");
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!options![payload.section]) options![payload.section] = {} as any;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (options![payload.section] as any)[payload.name] = payload.value;
+
+        storageService.set("options", options);
+
+        return { payload };
+      },
     },
   },
+  extraReducers: registerChatThunks,
 });
+
+export const {
+  authStatusChanged,
+
+  chatConnected,
+  chatDisconnected,
+  chatRegistered,
+
+  channelsInitialized,
+  channelAdded,
+  channelRemoved,
+  currentChannelChanged,
+  channelResourcesLoaded,
+
+  globalUserStateReceived,
+  userStateReceived,
+  roomStateReceived,
+
+  messageReceived,
+  clearChatReceived,
+  clearMsgReceived,
+
+  optionChanged,
+} = chat.actions;
+
+export default chat.reducer;

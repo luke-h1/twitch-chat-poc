@@ -1,8 +1,20 @@
 import { nanoid } from "@reduxjs/toolkit";
 import { parseMessage, Message, type MessageTypes } from "ircv3";
-import { ChatMessage, UserNotice } from "@twurple/chat";
+import {
+  PrivateMesPrivateMessage,
+  PrivateMessage,
+  sage,
+  UserNotice,
+} from "@twurple/chat";
 import { RootState } from "@frontend/store";
-import { MessageType, MessageTypePrivate } from "@frontend/types/messages";
+import {
+  IRCV3_KNOWN_COMMANDS,
+  Messages,
+  MessageType,
+  MessageTypeNotice,
+  MessageTypePrivate,
+  MessageTypeUserNotice,
+} from "@frontend/types/messages";
 import getIrcChannelName from "./getChannelName";
 
 const parsePrivMsgBody = (
@@ -45,7 +57,7 @@ export const createPrivateMessage = (state: RootState) => {
   const blockedUsers = blockedUsersSelector(state);
   const highlightRegExp = highlightRegExpSelector(state);
 
-  return (msg: ChatMessage): MessageTypePrivate | null => {
+  return (msg: PrivateMessage): MessageTypePrivate | null => {
     const user = msg.userInfo;
 
     if (blockedUsers?.includes(user.userName)) {
@@ -100,7 +112,7 @@ export const createPrivateMessage = (state: RootState) => {
   const blockedUsers = blockedUsersSelector(state);
   const highlightRegExp = highlightRegExpSelector(state);
 
-  return (msg: ChatMessage): MessageTypePrivate | null => {
+  return (msg: PrivateMessage): MessageTypePrivate | null => {
     const user = msg.userInfo;
 
     if (blockedUsers?.includes(user.userName)) {
@@ -146,4 +158,118 @@ export const createPrivateMessage = (state: RootState) => {
       _tags,
     };
   };
+};
+
+export const createUserNotice = (
+  msg: UserNotice,
+  state: RootState
+): MessageTypeUserNotice => {
+  const channelName = msg.channel.value;
+  const body = msg.message?.value;
+  const user = msg.userInfo;
+  const noticeType = msg.tags.get("msg-id") || "";
+  const systemMessage = (msg.tags.get("system-msg") || "").replace(/\\s/g, " ");
+
+  const _tags: MessageTypeUserNotice["_tags"] = {
+    emotes: msg.tags.get("emotes") || "",
+    badges: msg.tags.get("badges") || "",
+  };
+
+  const parts = createCreateParts(state)(body, _tags.emotes);
+  const badges = createCreateBadges(state)(user.userId, _tags.badges);
+
+  return {
+    type: MessageType.USER_NOTICE,
+    id: msg.id,
+    channelName,
+    timestamp: msg.date.getTime(),
+    user: {
+      id: user.userId!,
+      login: user.userName!,
+      displayName: user.displayName,
+      color: user.color,
+    },
+    badges,
+    parts,
+    body,
+    noticeType,
+    systemMessage,
+    _tags,
+  };
+};
+
+export const createNotice = (
+  msg: MessageTypes.Commands.Notice
+): MessageTypeNotice => ({
+  type: MessageType.NOTICE,
+  id: msg.tags.get("msg-id") || nanoid(),
+  channelName: getIrcChannelName(msg),
+  body: msg.text,
+  noticeType: msg.tags.get("msg-id") || "",
+});
+
+export const createOwnMessage = (
+  channelName: string,
+  text: string,
+  state: RootState
+): MessageTypePrivate => {
+  let body = text;
+  let isAction = false;
+
+  if (text.startsWith("/me")) {
+    body = text.slice(4);
+    isAction = true;
+  }
+
+  const user = meSelector(state);
+  const parts = createCreateParts(state)(body, "", true);
+  const badges = meBadgesSelector(state);
+  const card = createCreateCard(state)(parts);
+
+  return {
+    type: MessageType.PRIVATE_MESSAGE,
+    id: nanoid(),
+    channelName,
+    timestamp: Date.now(),
+    user: {
+      id: user.id!,
+      login: user.login!,
+      displayName: user.displayName,
+      color: user.color,
+    },
+    badges,
+    parts,
+    body,
+    card,
+    isCheer: false,
+    isRedemption: false,
+    isPointsHighlight: false,
+    isAction,
+    isDeleted: false,
+    isHistory: false,
+    isSelf: true,
+    isHighlighted: false,
+    _tags: {},
+  };
+};
+
+export const createHistoryMessages = (messages: string[], state: RootState) => {
+  const createPrivateMessageWithState = createPrivateMessage(state);
+  const result: Messages[] = [];
+
+  for (const message of messages) {
+    // https://github.com/twurple/twurple/blob/main/packages/chat/src/utils/messageUtil.ts#L48
+    const msg = parseMessage(message, undefined, IRCV3_KNOWN_COMMANDS, false);
+
+    if (msg.command === "PRIVMSG") {
+      const m = createPrivateMessageWithState(msg as PrivateMessage);
+
+      if (m) {
+        m.isHistory = true;
+        m.id = `${m.id}-history`;
+        result.push(m);
+      }
+    }
+  }
+  return result;
 };
