@@ -7,6 +7,10 @@ import { Channel, ChatState, FetchResult } from "./types";
 import { RootState } from "@frontend/store";
 import twitchService from "@frontend/services/twitchService";
 import bttvService from "@frontend/services/bttvService";
+import ffzService from "@frontend/services/ffzService";
+import stvService from "@frontend/services/stvService";
+import chatterinoService from "@frontend/services/chatterinoService";
+import recentMessageService from "@frontend/services/recentMessageService";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];
@@ -97,7 +101,7 @@ export const fetchBlockedUsers = createGlobalChatThunk({
     const { id, accessToken } = state.chat.me;
 
     return twitchService
-      .getUserBlockList(id, accessToken)
+      .listUserBlockList(id, accessToken)
       .then(parseBlockedUsers);
   },
 });
@@ -166,7 +170,7 @@ export const fetchAndMergeTwitchEmotes = (() => {
       const allIds = Array.from(new Set([...globalIds, ...channelIds]));
       const diffIds = allIds.filter((id) => !fetchedIds.includes(id));
       if (diffIds.length === 0) return null;
-      const response = await twitchService.getEmoteSets(diffIds, accessToken);
+      const response = await twitchService.listEmoteSets(diffIds, accessToken);
       return {
         data: parseTwitchEmotes(response),
         setIds: [...fetchedIds, ...diffIds],

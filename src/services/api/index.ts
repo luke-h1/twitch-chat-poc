@@ -32,3 +32,8 @@ export const sevenTvApi = axios.create({
 export const ffzApi = axios.create({
   baseURL: "https://api.frankerfacez.com/v1",
 });
+
+// chatterino API
+export const chatterinoApi = axios.create({
+  baseURL: "https://api.chatterino.com",
+});
