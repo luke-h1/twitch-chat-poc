@@ -11,7 +11,6 @@ import {
   RoomStateTags,
   UserStateTags,
 } from "./types";
-import { EntityState } from "@reduxjs/toolkit";
 import getInitialOptions from "@frontend/store/options/getInitialOptions";
 import {
   CHANNEL_INITIAL_STATE,
@@ -32,6 +31,7 @@ import {
 } from "@frontend/types/messages";
 import storageService from "@frontend/services/localStorageService";
 import { Options } from "@frontend/store/options/types";
+import { registerChatThunks } from "./thunks";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error

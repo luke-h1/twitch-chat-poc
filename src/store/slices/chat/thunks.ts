@@ -5,6 +5,8 @@ import {
 } from "@reduxjs/toolkit";
 import { Channel, ChatState, FetchResult } from "./types";
 import { RootState } from "@frontend/store";
+import twitchService from "@frontend/services/twitchService";
+import bttvService from "@frontend/services/bttvService";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];
@@ -87,7 +89,7 @@ const createChannelChatThunk = <TResult>({
 };
 
 // blocked users
-export const fetchBlockedUsers = createGlobalChatThunkArgs({
+export const fetchBlockedUsers = createGlobalChatThunk({
   name: "fetchBlockedUsers",
   path: (state) => state.me.blockedUsers,
   payloadCreator: (_, { getState }) => {
@@ -231,3 +233,42 @@ export const fetchFfzEmoji = createGlobalChatThunk({
 });
 
 // global badges
+export const fetchTwitchGlobalBadges = createGlobalChatThunk({
+  name: "fetchTwitchGlobalBadges",
+  path: (state) => state.badges.twitch,
+  payloadCreator: (_, { getState }) => {
+    const state = getState() as RootState;
+    const { accessToken } = state.chat.me;
+    return twitchService.listGlobalBadges(accessToken).then(parseTwitchBadges);
+  },
+});
+export const fetchBttvGlobalBadges = createGlobalChatThunk({
+  name: "fetchBttvGlobalBadges",
+  path: (state) => state.badges.bttv,
+  payloadCreator: () =>
+    bttvService.listGlobalBadges().then(parseBttvGlobalBadges),
+});
+export const fetchFfzGlobalBadges = createGlobalChatThunk({
+  name: "fetchFfzGlobalBadges",
+  path: (state) => state.badges.ffz,
+  payloadCreator: () =>
+    ffzService.listGlobalBadges().then(parseFfzGlobalBadges),
+});
+export const fetchFfzApGlobalBadges = createGlobalChatThunk({
+  name: "fetchFfzApGlobalBadges",
+  path: (state) => state.badges.ffzAp,
+  payloadCreator: () =>
+    ffzService.listApGlobalBadges().then(parseFfzApGlobalBadges),
+});
+export const fetchStvGlobalBadges = createGlobalChatThunk({
+  name: "fetchStvGlobalBadges",
+  path: (state) => state.badges.stv,
+  payloadCreator: () =>
+    stvService.listCosmetics().then((r) => parseStvCosmetics(r).badges),
+});
+export const fetchChatterinoGlobalBadges = createGlobalChatThunk({
+  name: "fetchChatterinoGlobalBadges",
+  path: (state) => state.badges.chatterino,
+  payloadCreator: () =>
+    chatterinoService.listGlobalBadges().then(parseChatterinoBadges),
+});
