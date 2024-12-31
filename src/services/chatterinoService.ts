@@ -1,5 +1,4 @@
 import { ChatterinoBadgesResponse } from "@frontend/types/chatterino/badge";
-import { chatterinoApi } from "./api";
 
 const chatterinoService = {
   listGlobalBadges: async (): Promise<ChatterinoBadgesResponse> => {

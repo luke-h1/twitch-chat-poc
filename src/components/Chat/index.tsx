@@ -12,6 +12,7 @@ import { useCallback, useRef } from "react";
 import styles from "./Chat.module.scss";
 import ChatTabs from "./ChatTabs";
 import ChatMessages from "./ChatMessages";
+import ChatInput from "./ChatInput";
 
 export default function Chat() {
   const dispatch = useAppDispatch();
@@ -66,6 +67,7 @@ export default function Chat() {
     <div className={styles.root}>
       <ChatTabs chat={chatRef} />
       <ChatMessages onNameRightClick={handleNameRightClick} />
+      <ChatInput ref={textareaRef} sendMessage={sendMessage} />
     </div>
   );
 }
