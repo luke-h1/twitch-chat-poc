@@ -151,7 +151,7 @@ interface AMessage {
 export enum MessageCardType {
   TWITCH_CLIP = 0,
   TWITCH_VIDEO = 1,
-  YOUTUBE_VIDEO = 2,
+  // YOUTUBE_VIDEO = 2,
 }
 
 // https://regex101.com/r/jGbDV1/5

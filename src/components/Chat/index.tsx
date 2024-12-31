@@ -11,6 +11,7 @@ import replaceEmojis from "@frontend/util/replaceEmojis";
 import { useCallback, useRef } from "react";
 import styles from "./Chat.module.scss";
 import ChatTabs from "./ChatTabs";
+import ChatMessages from "./ChatMessages";
 
 export default function Chat() {
   const dispatch = useAppDispatch();

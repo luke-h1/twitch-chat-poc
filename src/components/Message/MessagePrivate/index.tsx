@@ -15,6 +15,8 @@ import {
   timestampFormatSelector,
 } from "@frontend/store/options/selectors";
 import { calculateColor } from "@frontend/util/colors";
+import Badges from "@frontend/components/Badges";
+import MessageCard from "../MessageCard";
 
 interface MessageRootProps {
   $isAction: boolean;
@@ -39,6 +41,7 @@ const MessageRoot = styled.div<MessageRootProps>`
   word-wrap: break-word;
   background-color: ${getChatMessageBg};
 `;
+
 const Name = styled.span<{ $color: string }>`
   font-weight: bold;
   color: ${(p) => p.$color};
@@ -80,6 +83,7 @@ const Link = styled.a`
     color: #a970ff;
   }
 `;
+
 const Timestamp = styled.span`
   margin-right: 5px;
   color: rgba(255, 255, 255, 0.6);
@@ -224,7 +228,7 @@ const Message = ({
       {isAction ? " " : ": "}
       {renderBody()}
       {(showCards.youtube || showCards.twitch) && card && (
-        <MessageCardComponent type={card.type} id={card.id} url={card.url} />
+        <MessageCard type={card.type} id={card.id} url={card.url} />
       )}
     </MessageRoot>
   );

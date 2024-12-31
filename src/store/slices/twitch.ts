@@ -34,3 +34,4 @@ export const twitchApi = createApi({
     }),
   }),
 });
+export const { useTwitchClipQuery, useTwitchVideoQuery } = twitchApi;
