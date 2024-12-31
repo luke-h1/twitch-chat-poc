@@ -64,6 +64,7 @@ export default function Chat() {
   return (
     <div className={styles.root}>
       <ChatTabs chat={chatRef} />
+      <ChatMessages onNameRightClick={handleNameRightClick} />
     </div>
   );
 }

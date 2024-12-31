@@ -10,6 +10,8 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
     "@reduxjs/toolkit": "^2.5.0",
     "@twurple/auth": "5.2.7",
     "@twurple/chat": "5.2.7",

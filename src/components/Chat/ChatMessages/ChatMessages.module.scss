@@ -1,0 +1,27 @@
+.root {
+  position: relative;
+  flex-grow: 1;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+.container {
+  padding-bottom: 10px;
+  overflow-y: scroll;
+  height: 100%;
+}
+
+.button {
+  padding: 5px 20px;
+  background: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  color: #fff;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transform: translateX(-50%);
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+}
