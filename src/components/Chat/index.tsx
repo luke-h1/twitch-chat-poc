@@ -10,6 +10,7 @@ import { AllEmotes } from "@frontend/store/slices/emotes/types";
 import replaceEmojis from "@frontend/util/replaceEmojis";
 import { useCallback, useRef } from "react";
 import styles from "./Chat.module.scss";
+import ChatTabs from "./ChatTabs";
 
 export default function Chat() {
   const dispatch = useAppDispatch();
@@ -60,5 +61,9 @@ export default function Chat() {
     [textareaRef]
   );
 
-  return <div className={styles.root}>chat</div>;
+  return (
+    <div className={styles.root}>
+      <ChatTabs chat={chatRef} />
+    </div>
+  );
 }
