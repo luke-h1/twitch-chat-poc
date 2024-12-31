@@ -14,7 +14,18 @@ import recentMessageService from "@frontend/services/recentMessageService";
 import {
   parseBlockedUsers,
   parseTwitchBadges,
+  parseTwitchEmotes,
 } from "@frontend/parsers/twitchParsers";
+import {
+  parseFfzApGlobalBadges,
+  parseFfzEmoji,
+  parseFfzGlobalBadges,
+  parseFfzGlobalEmotes,
+} from "@frontend/parsers/ffzParsers";
+import {
+  parseStvCosmetics,
+  parseStvGlobalEmotes,
+} from "@frontend/parsers/stvParsers";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];
