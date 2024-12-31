@@ -17,6 +17,7 @@ import {
 import { calculateColor } from "@frontend/util/colors";
 import Badges from "@frontend/components/Badges";
 import MessageCard from "../MessageCard";
+import Emote from "@frontend/components/Emote";
 
 interface MessageRootProps {
   $isAction: boolean;
