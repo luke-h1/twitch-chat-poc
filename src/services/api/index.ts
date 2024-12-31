@@ -35,5 +35,5 @@ export const ffzApi = axios.create({
 
 // chatterino API
 export const chatterinoApi = axios.create({
-  baseURL: "https://api.chatterino.com",
+  baseURL: "http://localhost:1234",
 });

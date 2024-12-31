@@ -27,7 +27,6 @@ import {
   fetchFfzGlobalBadges,
   fetchFfzApGlobalBadges,
   fetchStvGlobalEmotes,
-  fetchStvGlobalBadges,
   fetchChatterinoGlobalBadges,
   fetchBttvChannelEmotes,
   fetchFfzChannelEmotes,
@@ -106,9 +105,9 @@ const useFetchChatData = () => {
     if (fetchGlobalStatus.emotes.stv === "idle" && options.stv.emotes) {
       dispatch(fetchStvGlobalEmotes());
     }
-    if (fetchGlobalStatus.badges.stv === "idle" && options.stv.badges) {
-      dispatch(fetchStvGlobalBadges());
-    }
+    // if (fetchGlobalStatus.badges.stv === "idle" && options.stv.badges) {
+    //   dispatch(fetchStvGlobalBadges());
+    // }
     if (
       fetchGlobalStatus.badges.chatterino === "idle" &&
       options.chatterino.badges

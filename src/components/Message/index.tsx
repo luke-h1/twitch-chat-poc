@@ -1,4 +1,7 @@
 import { Messages, MessageType } from "@frontend/types/messages";
+import MessageNotice from "./MessageNotice";
+import MessageUserNotice from "./MessageUserNotice";
+import MessagePrivate from "./MessagePrivate";
 
 interface Props {
   message: Messages;
@@ -35,3 +38,4 @@ const Message = ({
 
   return assertNever(message);
 };
+export default Message;

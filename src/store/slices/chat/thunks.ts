@@ -176,10 +176,12 @@ export const fetchRecentMessages = (() => {
         rawMessages = payload.messages.slice(exceededMessages);
       }
 
-      const messages = createHistoryMessages(rawMessages, {
-        chat: state,
-      } as RootState);
-      channel.messages = [...messages, ...channel.messages];
+      // const messages = createHistoryMessages(rawMessages, {
+      //   chat: state,
+      // } as RootState);
+      // channel.messages = [...messages, ...channel.messages];
+
+      const messages = [channel.messages];
 
       // if we added odd number of messages, invert altBg
       if (messages.length % 2 !== 0) {
@@ -302,12 +304,12 @@ export const fetchFfzApGlobalBadges = createGlobalChatThunk({
   payloadCreator: () =>
     ffzService.listApGlobalBadges().then(parseFfzApGlobalBadges),
 });
-export const fetchStvGlobalBadges = createGlobalChatThunk({
-  name: "fetchStvGlobalBadges",
-  path: (state) => state.badges.stv,
-  payloadCreator: () =>
-    stvService.listCosmetics().then((r) => parseStvCosmetics(r).badges),
-});
+// export const fetchStvGlobalBadges = createGlobalChatThunk({
+//   name: "fetchStvGlobalBadges",
+//   path: (state) => state.badges.stv,
+//   payloadCreator: () =>
+//     stvService.listCosmetics().then((r) => parseStvCosmetics(r).badges),
+// });
 export const fetchChatterinoGlobalBadges = createGlobalChatThunk({
   name: "fetchChatterinoGlobalBadges",
   path: (state) => state.badges.chatterino,

@@ -33,6 +33,12 @@ import createMessageCard from "./createMessageCard";
 const parsePrivMsgBody = (
   content: string
 ): [body: string, isAction: boolean] => {
+  console.log("[parsePrivMsgBody] content ->", content);
+
+  if (!content) {
+    console.warn("no content");
+  }
+
   return content.startsWith("\u0001ACTION ")
     ? [content.slice(8, -1), true]
     : [content, false];
@@ -79,7 +85,8 @@ export const createPrivateMessage = (state: RootState) => {
 
     const channelName = getIrcChannelName(msg);
 
-    const [body, isAction] = parsePrivMsgBody(msg.text);
+    console.log("MESSAGE IS HERE ->", msg);
+    const [body, isAction] = parsePrivMsgBody(msg.content.value);
 
     const _tags: MessageTypePrivate["_tags"] = {
       emotes: msg.tags.get("emotes") || "",
@@ -174,6 +181,8 @@ export const createOwnMessage = (
   let body = text;
   let isAction = false;
 
+  console.log("[createOwnMessage] text ->", text);
+
   if (text.startsWith("/me")) {
     body = text.slice(4);
     isAction = true;
@@ -211,7 +220,10 @@ export const createOwnMessage = (
   };
 };
 
-export const createHistoryMessages = (messages: string[], state: RootState) => {
+export const createHistoryMessages = (
+  messages: string[],
+  state: RootState
+): Messages[] => {
   const createPrivateMessageWithState = createPrivateMessage(state);
   const result: Messages[] = [];
 

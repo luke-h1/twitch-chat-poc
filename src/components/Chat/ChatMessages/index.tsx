@@ -6,6 +6,7 @@ import {
 } from "@frontend/store/slices/chat/selectors";
 import { memo, useEffect, useRef, useState } from "react";
 import styles from "./ChatMessages.module.scss";
+import Message from "@frontend/components/Message";
 
 interface Props {
   onNameClick?: (name: string) => void;

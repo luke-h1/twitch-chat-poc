@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useAppDispatch, useAppSelector } from "@frontend/store/hooks";
