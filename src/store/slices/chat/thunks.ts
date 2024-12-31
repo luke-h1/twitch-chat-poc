@@ -11,6 +11,10 @@ import ffzService from "@frontend/services/ffzService";
 import stvService from "@frontend/services/stvService";
 import chatterinoService from "@frontend/services/chatterinoService";
 import recentMessageService from "@frontend/services/recentMessageService";
+import {
+  parseBlockedUsers,
+  parseTwitchBadges,
+} from "@frontend/parsers/twitchParsers";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];
