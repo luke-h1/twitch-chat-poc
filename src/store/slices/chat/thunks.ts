@@ -4,7 +4,7 @@ import {
   createAsyncThunk,
 } from "@reduxjs/toolkit";
 import { Channel, ChatState, FetchResult } from "./types";
-import { RootState } from "@frontend/store";
+import { AppThunk, RootState } from "@frontend/store";
 import twitchService from "@frontend/services/twitchService";
 import bttvService from "@frontend/services/bttvService";
 import ffzService from "@frontend/services/ffzService";
@@ -18,20 +18,34 @@ import {
 } from "@frontend/parsers/twitchParsers";
 import {
   parseFfzApGlobalBadges,
+  parseFfzChannelEmotes,
   parseFfzEmoji,
   parseFfzGlobalBadges,
   parseFfzGlobalEmotes,
 } from "@frontend/parsers/ffzParsers";
 import {
+  parseStvChannelEmotes,
   parseStvCosmetics,
   parseStvGlobalEmotes,
 } from "@frontend/parsers/stvParsers";
 import {
+  parseBttvChannelEmotes,
   parseBttvGlobalBadges,
   parseBttvGlobalEmotes,
 } from "@frontend/parsers/bttvParsers";
 import { parseChatterinoBadges } from "@frontend/parsers/chatterinoParsers";
-import { createHistoryMessages } from "@frontend/util/createMessages";
+import {
+  createHistoryMessages,
+  createNotice,
+  createOwnMessage,
+  createPrivateMessage,
+  createUserNotice,
+} from "@frontend/util/createMessages";
+import { PrivateMessage, UserNotice } from "@twurple/chat";
+import { messageReceived } from "./slice";
+import { MessageTypes } from "ircv3";
+import { writeEmotesUsageStatistic } from "@frontend/util/emoteUsageStatistics";
+import playSound from "@frontend/util/playSound";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];
@@ -264,7 +278,9 @@ export const fetchTwitchGlobalBadges = createGlobalChatThunk({
   payloadCreator: async (_, { getState }) => {
     const state = getState() as RootState;
     const { accessToken } = state.chat.me;
-    const response = await twitchService.listGlobalBadges(accessToken);
+    const response = await twitchService.listGlobalBadges(
+      accessToken as string
+    );
     return parseTwitchBadges(response);
   },
 });
@@ -298,3 +314,79 @@ export const fetchChatterinoGlobalBadges = createGlobalChatThunk({
   payloadCreator: () =>
     chatterinoService.listGlobalBadges().then(parseChatterinoBadges),
 });
+
+// channel emotes
+export const fetchBttvChannelEmotes = createChannelChatThunk({
+  name: "fetchBttvChannelEmotes",
+  path: (channel) => channel.emotes.bttv,
+  payloadCreator: ({ channelId, channelName }) =>
+    bttvService
+      .listChannelEmotes(channelId)
+      .then((data) => ({ data: parseBttvChannelEmotes(data), channelName })),
+});
+export const fetchFfzChannelEmotes = createChannelChatThunk({
+  name: "fetchFfzChannelEmotes",
+  path: (channel) => channel.emotes.ffz,
+  payloadCreator: ({ channelId, channelName }) =>
+    ffzService
+      .listChannelEmotes(channelId)
+      .then((data) => ({ data: parseFfzChannelEmotes(data), channelName })),
+});
+export const fetchStvChannelEmotes = createChannelChatThunk({
+  name: "fetchStvChannelEmotes",
+  path: (channel) => channel.emotes.stv,
+  payloadCreator: ({ channelId, channelName }) =>
+    stvService
+      .listChannelEmotes(channelId)
+      .then((data) => ({ data: parseStvChannelEmotes(data), channelName })),
+});
+
+// channel badges
+export const fetchTwitchChannelBadges = createChannelChatThunk({
+  name: "fetchTwitchChannelBadges",
+  path: (channel) => channel.badges.twitch,
+  payloadCreator: ({ channelId, channelName }, { getState }) => {
+    const state = getState() as RootState;
+    const { accessToken } = state.chat.me;
+    return twitchService
+      .listChannelBadges(channelId, accessToken)
+      .then((data) => ({ data: parseTwitchBadges(data), channelName }));
+  },
+});
+
+// messages
+export const privateMessageReceived =
+  (msg: PrivateMessage): AppThunk =>
+  (dispatch, getState) => {
+    const state = getState();
+    // sound on mention
+    const message = createPrivateMessage(state)(msg);
+    if (!message) return;
+    if (message.isHighlighted) playSound("tink");
+    dispatch(messageReceived(message));
+  };
+export const userNoticeReceived =
+  (msg: UserNotice): AppThunk =>
+  (dispatch, getState) => {
+    const state = getState();
+    dispatch(messageReceived(createUserNotice(msg, state)));
+  };
+export const noticeReceived =
+  (msg: MessageTypes.Commands.Notice): AppThunk =>
+  (dispatch) => {
+    dispatch(messageReceived(createNotice(msg)));
+  };
+export const messageSended =
+  ({
+    channelName,
+    message,
+  }: {
+    channelName: string;
+    message: string;
+  }): AppThunk =>
+  (dispatch, getState) => {
+    const state = getState();
+    const m = createOwnMessage(channelName, message, state);
+    writeEmotesUsageStatistic(m.parts);
+    dispatch(messageReceived(m));
+  };
