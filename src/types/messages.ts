@@ -1,4 +1,4 @@
-import { MessageBadge } from "@frontend/store/slices/badges/types";
+import { MessageBadge } from "@frontend/types/badges/types";
 import { PrivateMessage } from "@twurple/chat";
 
 export enum MessageType {

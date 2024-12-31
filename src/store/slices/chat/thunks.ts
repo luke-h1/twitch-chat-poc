@@ -31,6 +31,7 @@ import {
   parseBttvGlobalEmotes,
 } from "@frontend/parsers/bttvParsers";
 import { parseChatterinoBadges } from "@frontend/parsers/chatterinoParsers";
+import { createHistoryMessages } from "@frontend/util/createMessages";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];

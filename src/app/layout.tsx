@@ -1,3 +1,4 @@
+import Providers from "@frontend/components/Provider";
 import "@frontend/styles/global.scss";
 import type { Metadata } from "next";
 
@@ -13,7 +14,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <Providers>
+        <body>{children}</body>
+      </Providers>
     </html>
   );
 }
