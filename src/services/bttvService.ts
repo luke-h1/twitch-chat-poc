@@ -1,10 +1,13 @@
 import { BttvGlobalBadgesResponse } from "@frontend/types/bttv/badge";
 import { bttvApi } from "./api";
-import { BttvChannelEmotesResponse } from "@frontend/types/bttv/emote";
+import {
+  BttvChannelEmotesResponse,
+  BttvGlobalEmotesResponse,
+} from "@frontend/types/bttv/emote";
 
 const bttvService = {
-  listGlobalEmotes: async (): Promise<BttvGlobalBadgesResponse> => {
-    const { data } = await bttvApi.get<BttvGlobalBadgesResponse>(
+  listGlobalEmotes: async (): Promise<BttvGlobalEmotesResponse> => {
+    const { data } = await bttvApi.get<BttvGlobalEmotesResponse>(
       "/cached/emotes/global"
     );
     return data;

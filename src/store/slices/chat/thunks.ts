@@ -26,6 +26,11 @@ import {
   parseStvCosmetics,
   parseStvGlobalEmotes,
 } from "@frontend/parsers/stvParsers";
+import {
+  parseBttvGlobalBadges,
+  parseBttvGlobalEmotes,
+} from "@frontend/parsers/bttvParsers";
+import { parseChatterinoBadges } from "@frontend/parsers/chatterinoParsers";
 
 const builderFns: ((builder: ActionReducerMapBuilder<ChatState>) => void)[] =
   [];
@@ -255,10 +260,11 @@ export const fetchFfzEmoji = createGlobalChatThunk({
 export const fetchTwitchGlobalBadges = createGlobalChatThunk({
   name: "fetchTwitchGlobalBadges",
   path: (state) => state.badges.twitch,
-  payloadCreator: (_, { getState }) => {
+  payloadCreator: async (_, { getState }) => {
     const state = getState() as RootState;
     const { accessToken } = state.chat.me;
-    return twitchService.listGlobalBadges(accessToken).then(parseTwitchBadges);
+    const response = await twitchService.listGlobalBadges(accessToken);
+    return parseTwitchBadges(response);
   },
 });
 export const fetchBttvGlobalBadges = createGlobalChatThunk({
