@@ -1,0 +1,38 @@
+.root {
+  display: flex;
+  background-color: #18181b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 32px;
+  font-size: 15px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.tabName {
+  padding-left: 16px;
+}
+
+.closeIcon {
+  position: absolute;
+  padding: 2px;
+  top: calc(50% + 1px);
+  right: 8px;
+  display: block;
+  width: 16px;
+  height: 16px;
+  opacity: 0.3;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    opacity: 0.6;
+  }
+}
