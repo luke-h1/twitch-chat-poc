@@ -26,6 +26,7 @@
     "react-dom": "^19.0.0",
     "react-redux": "^9.2.0",
     "react-textarea-autosize": "^8.5.3",
+    "react-use": "^17.6.0",
     "redux": "^5.0.1",
     "redux-devtools-extension": "^2.13.9",
     "sass": "^1.83.0",

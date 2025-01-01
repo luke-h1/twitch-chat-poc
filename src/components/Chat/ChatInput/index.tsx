@@ -27,14 +27,17 @@ type ASuggestions = {
   start: number;
   end: number;
 };
+
 type UserSuggestions = ASuggestions & {
   type: "users";
   items: string[];
 };
+
 type EmoteSuggestions = ASuggestions & {
   type: "emotes";
   items: HtmlEmote[];
 };
+
 export type SuggestionsState = UserSuggestions | EmoteSuggestions;
 
 export const PREVENT_FORWARD_PROPS = {
