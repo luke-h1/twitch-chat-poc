@@ -16,6 +16,8 @@ import {
   currentChannelUsersSelector,
   currentChannelRecentInputsSelector,
 } from "@frontend/store/slices/chat/selectors";
+import { SUGGESTION_TYPES } from "@frontend/store/slices/chat/config";
+import getUsersByBeginText from "@frontend/util/getUsersByBeginText";
 
 interface UseChatReturn {
   suggestions: ReturnType<typeof useSuggestions>;
@@ -60,6 +62,60 @@ export default function useChatInput(
 
   deps.current = getDeps();
 
-  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {},
-  []);
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    const { value, selectionStart } = e.target;
+
+    const spaceIndexBefore = value.lastIndexOf(" ", selectionStart - 1);
+    const spaceIndexAfter = value.indexOf(" ", selectionStart);
+
+    const start = spaceIndexBefore === -1 ? 0 : spaceIndexBefore + 1;
+    const end = spaceIndexAfter === -1 ? value.length : spaceIndexAfter;
+
+    const word = value.substring(start, end);
+
+    const usersMatch = SUGGESTION_TYPES.users.regex.exec(word);
+
+    // search for a user
+    if (usersMatch) {
+      const [, beginText] = usersMatch;
+      const items = getUsersByBeginText(
+        beginText,
+        deps.current.users,
+        deps.current.meLogin!,
+        SUGGESTION_TYPES.users.limit
+      );
+
+      deps.current.suggestions.set({
+        type: "users",
+        isActive: true,
+        items,
+        activeIndex: 0,
+        start,
+        end,
+      });
+      return;
+    }
+
+    // emotes
+    const emotesMatch = SUGGESTION_TYPES.emotes.regex.exec(word);
+
+    if (emotesMatch && deps.current.emotes) {
+      const [, text] = emotesMatch;
+      const items = getEmotesByText(
+        text,
+        deps.current.emotes,
+        SUGGESTION_TYPES.emotes.limit
+      );
+
+      deps.current.suggestions.set({
+        type: "emotes",
+        isActive: true,
+        items,
+        activeIndex: 0,
+        start,
+        end,
+      });
+      return;
+    }
+  }, []);
 }
