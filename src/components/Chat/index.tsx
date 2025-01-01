@@ -13,9 +13,12 @@ import styles from "./Chat.module.scss";
 import ChatTabs from "./ChatTabs";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
+import ChatControls from "../ChatControls";
+import { useMounted } from "@frontend/hooks/useMounted";
 
 export default function Chat() {
   const dispatch = useAppDispatch();
+  const { isMounted } = useMounted();
 
   const channel = useAppSelector(currentChannelNameSelector);
   const emotes = useAppSelector(emotesSelector);
@@ -63,11 +66,12 @@ export default function Chat() {
     [textareaRef]
   );
 
-  return (
+  return isMounted ? (
     <div className={styles.root}>
       <ChatTabs chat={chatRef} />
       <ChatMessages onNameRightClick={handleNameRightClick} />
       <ChatInput ref={textareaRef} sendMessage={sendMessage} />
+      <ChatControls onChatClick={handleSendMessage} />
     </div>
-  );
+  ) : null;
 }

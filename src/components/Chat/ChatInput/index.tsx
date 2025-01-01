@@ -54,7 +54,6 @@ const sizes = {
     width: 30px;
     height: 30px;
   `,
-  // large: css``,
 };
 
 const IconButton = styled.button<{ $size?: "small" | "medium" }>`
@@ -242,6 +241,7 @@ const ChatInput = forwardRef<HTMLTextAreaElement, Props>(
     const authStatus = useAppSelector(authStatusSelector);
     const isRegistered = useAppSelector(isRegisteredSelector);
     const isReady = useAppSelector(isChannelReadySelector);
+    console.log("isReady ->", isReady);
 
     const [isShowTextareaScroll, setIsShowTextareaScroll] = useState(false);
     const [isEmotesModalVisible, setIsEmotesModalVisible] = useState(false);
@@ -351,7 +351,7 @@ const ChatInput = forwardRef<HTMLTextAreaElement, Props>(
                 disabled={!(isRegistered && authStatus === "success")}
                 $showScroll={isShowTextareaScroll}
                 onChange={handleChange}
-                onKeyUp={handleKeyUp}
+                onKeyUp={() => handleKeyUp}
                 onKeyDown={handleKeyDown}
                 onHeightChange={handleHeightChange}
               />

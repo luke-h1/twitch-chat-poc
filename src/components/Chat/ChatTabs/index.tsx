@@ -61,9 +61,9 @@ export default function ChatTabs({ chat }: Props) {
 
   return (
     <div className={styles.root}>
-      {channelNames.map((name) => (
+      {channelNames.map((name, i) => (
         // eslint-disable-next-line react/jsx-key
-        <div className={styles.tab}>
+        <div className={styles.tab} key={i}>
           <p className={styles.tabName} onClick={handleTabClick(name)}>
             {name}
           </p>
