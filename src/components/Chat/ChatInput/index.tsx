@@ -20,6 +20,7 @@ import {
 } from "@frontend/store/slices/chat/selectors";
 import { HtmlEmote } from "@frontend/store/slices/emotes/types";
 import EmotePicker from "../EmotePicker";
+import useChatInput from "@frontend/hooks/useChatInput";
 
 type ASuggestions = {
   isActive: boolean;

@@ -1,6 +1,5 @@
 import { AllEmotes, HtmlEmote } from "@frontend/store/slices/emotes/types";
 import { MessagePartType } from "@frontend/types/messages";
-import createHtmlBadge from "./createHtmlBadge";
 import createHtmlEmote from "./createHtmlEmote";
 
 interface SearchResult {
@@ -52,7 +51,100 @@ function createFindEmoji(emotes: AllEmotes) {
 
       if (typeof emote.name === "string") {
         const index = emote.name.toLowerCase().indexOf(search);
+
+        if (index === -1) {
+          continue;
+        }
+
+        result[index === 0 ? "begins" : "contains"].push(
+          createHtmlEmote(
+            emotes,
+            MessagePartType.EMOJI,
+            emote.codePoints
+          ) as HtmlEmote
+        );
+      } else {
+        for (const keyword of emote.name) {
+          const index = keyword.toLowerCase().indexOf(search);
+
+          if (index === -1) {
+            continue;
+          }
+
+          result[index === 0 ? "begins" : "contains"].push(
+            createHtmlEmote(emotes, MessagePartType.EMOJI, emote.codePoints)!
+          );
+          break;
+        }
       }
     }
   };
+}
+
+export default function getEmotesByText(
+  search: string,
+  emotes: AllEmotes,
+  limit = -1
+): HtmlEmote[] {
+  const result: SearchResult = { begins: [], contains: [] };
+
+  const emoteFinders = [
+    createFindEmotes(
+      emotes,
+      emotes.twitch?.entries,
+      "name",
+      "id",
+      MessagePartType.TWITCH_EMOTE
+    ),
+    createFindEmotes(
+      emotes,
+      emotes.bttvChannel?.entries,
+      "code",
+      "id",
+      MessagePartType.BTTV_EMOTE
+    ),
+    createFindEmotes(
+      emotes,
+      emotes.bttvGlobal?.entries,
+      "code",
+      "id",
+      MessagePartType.BTTV_EMOTE
+    ),
+    createFindEmotes(
+      emotes,
+      emotes.ffzChannel?.entries,
+      "name",
+      "id",
+      MessagePartType.FFZ_EMOTE
+    ),
+    createFindEmotes(
+      emotes,
+      emotes.ffzGlobal?.entries,
+      "name",
+      "id",
+      MessagePartType.FFZ_EMOTE
+    ),
+    createFindEmotes(
+      emotes,
+      emotes.stvChannel?.entries,
+      "name",
+      "id",
+      MessagePartType.STV_EMOTE
+    ),
+    createFindEmotes(
+      emotes,
+      emotes.stvGlobal?.entries,
+      "name",
+      "id",
+      MessagePartType.STV_EMOTE
+    ),
+    createFindEmoji(emotes),
+  ];
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const isOver = emoteFinders.some((findEmote) =>
+    findEmote(result, search, limit)
+  );
+
+  return [...result.begins, ...result.contains];
 }
